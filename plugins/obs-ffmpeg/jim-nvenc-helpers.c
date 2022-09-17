@@ -200,6 +200,7 @@ extern struct obs_encoder_info h264_nvenc_info;
 #ifdef ENABLE_HEVC
 extern struct obs_encoder_info hevc_nvenc_info;
 #endif
+extern struct obs_encoder_info av1_nvenc_info;
 
 void jim_nvenc_load(bool h264, bool hevc)
 {
@@ -210,6 +211,7 @@ void jim_nvenc_load(bool h264, bool hevc)
 	if (hevc)
 		obs_register_encoder(&hevc_nvenc_info);
 #endif
+	obs_register_encoder(&av1_nvenc_info);
 }
 
 void jim_nvenc_unload(void)
