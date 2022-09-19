@@ -290,9 +290,7 @@ struct SimpleOutput : BasicOutputHandler {
 	void UpdateRecordingSettings_x264_crf(int crf);
 	void UpdateRecordingSettings_qsv11(int crf);
 	void UpdateRecordingSettings_nvenc(int cqp);
-#ifdef ENABLE_HEVC
 	void UpdateRecordingSettings_nvenc_hevc(int cqp);
-#endif
 	void UpdateRecordingSettings_amd_cqp(int cqp);
 	void UpdateRecordingSettings_apple(int quality);
 	void UpdateRecordingSettings();
@@ -384,6 +382,9 @@ const char *get_simple_output_encoder(const char *encoder)
 		return EncoderAvailable("jim_hevc_nvenc") ? "jim_hevc_nvenc"
 							  : "ffmpeg_hevc_nvenc";
 #endif
+	} else if (strcmp(encoder, SIMPLE_ENCODER_NVENC_AV1) == 0) {
+		return EncoderAvailable("jim_av1_nvenc") ? "jim_av1_nvenc"
+							 : "ffmpeg_av1_nvenc";
 	} else if (strcmp(encoder, SIMPLE_ENCODER_APPLE_H264) == 0) {
 		return "com.apple.videotoolbox.videoencoder.ave.avc";
 	}
@@ -542,6 +543,9 @@ void SimpleOutput::Update()
 		presetType = "NVENCPreset";
 #endif
 
+	} else if (strcmp(encoder, SIMPLE_ENCODER_NVENC_AV1) == 0) {
+		presetType = "NVENCPreset";
+
 	} else {
 		presetType = "Preset";
 	}
@@ -676,7 +680,6 @@ void SimpleOutput::UpdateRecordingSettings_nvenc(int cqp)
 	obs_encoder_update(videoRecording, settings);
 }
 
-#ifdef ENABLE_HEVC
 void SimpleOutput::UpdateRecordingSettings_nvenc_hevc(int cqp)
 {
 	OBSDataAutoRelease settings = obs_data_create();
@@ -686,7 +689,6 @@ void SimpleOutput::UpdateRecordingSettings_nvenc_hevc(int cqp)
 
 	obs_encoder_update(videoRecording, settings);
 }
-#endif
 
 void SimpleOutput::UpdateRecordingSettings_apple(int quality)
 {
@@ -734,6 +736,9 @@ void SimpleOutput::UpdateRecordingSettings()
 	} else if (videoEncoder == SIMPLE_ENCODER_NVENC_HEVC) {
 		UpdateRecordingSettings_nvenc_hevc(crf);
 #endif
+	} else if (videoEncoder == SIMPLE_ENCODER_NVENC_AV1) {
+		UpdateRecordingSettings_nvenc_hevc(crf);
+
 	} else if (videoEncoder == SIMPLE_ENCODER_APPLE_H264) {
 		/* These are magic numbers. 0 - 100, more is better. */
 		UpdateRecordingSettings_apple(ultra_hq ? 70 : 50);
