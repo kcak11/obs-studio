@@ -570,12 +570,12 @@ static bool init_encoder_base(struct nvenc_data *enc, obs_data_t *settings,
 		if (*lossless)
 			cqp = 0;
 
-		int cqp_x4 = cqp * 4;
+		int cqp_val = enc->codec == CODEC_AV1 ? cqp * 4 : cqp;
 
 		config->rcParams.rateControlMode = NV_ENC_PARAMS_RC_CONSTQP;
-		config->rcParams.constQP.qpInterP = cqp_x4;
-		config->rcParams.constQP.qpInterB = cqp_x4;
-		config->rcParams.constQP.qpIntra = cqp_x4;
+		config->rcParams.constQP.qpInterP = cqp_val;
+		config->rcParams.constQP.qpInterB = cqp_val;
+		config->rcParams.constQP.qpIntra = cqp_val;
 		enc->can_change_bitrate = false;
 
 		bitrate = 0;
@@ -867,6 +867,7 @@ static bool init_encoder_av1(struct nvenc_data *enc, obs_data_t *settings,
 	av1_config->inputPixelBitDepthMinus8 = av1_config->pixelBitDepthMinus8;
 	av1_config->numFwdRefs = 1;
 	av1_config->numBwdRefs = 1;
+	av1_config->repeatSeqHdr = 1;
 
 	if (NV_FAILED(nv.nvEncInitializeEncoder(enc->session, &enc->params))) {
 		return false;
